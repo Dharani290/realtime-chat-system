@@ -1,4 +1,6 @@
-const bcrypt = require("bcrypt");
+require('dotenv').config();
+
+// Rest of your code stays the sameconst bcrypt = require("bcrypt");
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -128,3 +130,4 @@ io.on("connection", (socket) => {
 server.listen(3000, () =>
   console.log("Server running on http://localhost:3000")
 );
+
