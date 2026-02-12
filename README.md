@@ -183,8 +183,7 @@ Add your project screenshots here:
 
 **Dharani C**
 
-* Full Stack & Real-Time App Developer
-* Passionate about Web & AI Projects
+
 
 ---
 
@@ -204,4 +203,4 @@ If you like this project:
 
 ---
 
-**Built with ❤️ using Node.js & Socket.IO**
+**Built using Node.js & Socket.IO**
