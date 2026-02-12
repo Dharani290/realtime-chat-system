@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WhatsApp Style Chat</title>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Arial; }
+    body { background: #ece5dd; }
+
+    /* AUTH */
+    #auth {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #075e54, #128c7e);
+    }
+
+    #authBox {
+      background: #e6f3ef;
+      padding: 30px;
+      width: 360px;
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    #authBox h3 { margin-bottom: 10px; }
+    #authBox p { font-size: 14px; color: #555; }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+    }
+
+    .password-box {
+      position: relative;
+    }
+
+    .eye {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      background: linear-gradient(90deg, #075e54, #25d366);
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .link {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #075e54;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    /* CHAT */
+    #chatApp {
+      display: none;
+      height: 100vh;
+    }
+
+    .chat-container {
+      display: flex;
+      height: 100%;
+    }
+
+    .sidebar {
+      width: 30%;
+      background: white;
+      border-right: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .profile-bar {
+      background: #075e54;
+      color: white;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #25d366;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .search-box {
+      padding: 10px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 20px;
+      border: none;
+      background: #f0f0f0;
+    }
+    .chat-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.sidebar {
+  width: 320px;          /* WhatsApp-like fixed sidebar */
+  min-width: 320px;
+  max-width: 320px;
+}
+
+.chat-area {
+  flex: 1;               /* 🔥 THIS IS THE KEY */
+  display: flex;
+  flex-direction: column;
+  background: #efeae2;
+}
+
+
+    #users {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    #users li {
+      list-style: none;
+      padding: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
+
+    #users li:hover {
+      background: #e9f5ef;
+    }
+
+    .chat-area {
+      width: 70%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      background: white;
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: #efeae2;
+    }
+
+    .msg {
+      max-width: 60%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 10px;
+    }
+
+    .me { background: #dcf8c6; margin-left: auto; }
+    .other { background: white; margin-right: auto; }
+
+    #inputBar {
+      display: flex;
+      padding: 10px;
+      background: white;
+      gap: 10px;
+    }
+
+    #msg {
+      flex: 1;
+      padding: 12px;
+      border-radius: 25px;
+      border: none;
+      background: #f0f0f0;
+    }
+
+    #sendBtn {
+      width: 80px;
+      border-radius: 25px;
+      border: none;
+      background: #25d366;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- AUTH -->
+<div id="auth">
+  <div id="authBox">
+    <h3 id="title">Login</h3>
+    <p id="subtitle">Enter your username and password</p>
+
+    <input id="username" placeholder="Username">
+
+    <div class="password-box">
+      <input id="password" type="password" placeholder="Password">
+      <span class="eye" onclick="togglePassword()">👁</span>
+    </div>
+
+    <label style="font-size:13px; margin-top:6px; display:block;">
+      <input type="checkbox" id="remember"> Remember username
+    </label>
+
+    <button id="mainBtn" onclick="submitAuth()">Login</button>
+
+    <div class="link" onclick="setMode('login')">Login</div>
+    <div class="link" onclick="setMode('register')">Create Account</div>
+    <div class="link" onclick="setMode('reset')">Forgot Password?</div>
+
+    <p id="status"></p>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div id="chatApp">
+  <div class="chat-container">
+
+    <div class="sidebar">
+      <div class="profile-bar">
+        <div class="avatar" id="meAvatar">U</div>
+        <div id="meName"></div>
+      </div>
+
+      <div class="search-box">
+        <input placeholder="Search users...">
+      </div>
+
+      <ul id="users"></ul>
+    </div>
+
+    <div class="chat-area">
+
+  <div class="chat-header">
+    <strong id="chatWith">Select a user</strong>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div id="emptyState" style="
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#555;
+  ">
+    <div style="
+      width:80px;
+      height:80px;
+      border-radius:50%;
+      background:#d9fdd3;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      margin-bottom:16px;
+    ">➤</div>
+    <h2>Welcome to Chat</h2>
+    <p>Select a user from the sidebar to start messaging</p>
+  </div>
+
+  <!-- MESSAGES -->
+  <div id="messages" style="display:none;"></div>
+
+  <!-- INPUT -->
+  <div id="inputBar" style="display:none;">
+    <input id="msg" placeholder="Type a message..."
+           onkeydown="if(event.key==='Enter')send()">
+    <button id="sendBtn" onclick="send()">Send</button>
+  </div>
+
+</div>
+
+
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  let mode = "login";
+  let currentUser = "";
+  let selectedUser = "";
+
+  function setMode(m) {
+    mode = m;
+    title.innerText = m === "login" ? "Login" :
+                      m === "register" ? "Create Account" : "Reset Password";
+    subtitle.innerText = m === "reset" ? "Enter new password" : " ";
+    mainBtn.innerText = title.innerText;
+    status.innerText = "";
+  }
+
+  function togglePassword() {
+    password.type = password.type === "password" ? "text" : "password";
+  }
+
+  function submitAuth() {
+    if (remember.checked) sessionStorage.setItem("savedUser", username.value);
+
+    if (mode === "login")
+      socket.emit("login", { username: username.value, password: password.value });
+    if (mode === "register")
+      socket.emit("register", { username: username.value, password: password.value });
+    if (mode === "reset")
+      socket.emit("resetPassword", { username: username.value, newPassword: password.value });
+  }
+
+  socket.on("loginSuccess", user => {
+    currentUser = user;
+    auth.style.display = "none";
+    chatApp.style.display = "flex";
+    meName.innerText = user;
+    meAvatar.innerText = user[0].toUpperCase();
+    socket.emit("restoreSession", user);
+  });
+
+  socket.on("onlineUsers", list => {
+    users.innerHTML = "";
+    list.forEach(u => {
+      if (u !== currentUser) {
+        const li = document.createElement("li");
+        li.innerText = u;
+        li.onclick = () => {
+  selectedUser = u;
+  chatWith.innerText = u;
+
+  document.getElementById("emptyState").style.display = "none";
+  document.getElementById("messages").style.display = "block";
+  document.getElementById("inputBar").style.display = "flex";
+
+  messages.innerHTML = "";
+  socket.emit("loadChat", { otherUser: u });
+};
+
+        users.appendChild(li);
+      }
+    });
+  });
+
+  socket.on("chatHistory", msgs => msgs.forEach(show));
+  socket.on("privateMessage", show);
+
+  function show(m) {
+    if (
+      (m.sender === currentUser && m.receiver === selectedUser) ||
+      (m.sender === selectedUser && m.receiver === currentUser)
+    ) {
+      const d = document.createElement("div");
+      d.className = "msg " + (m.sender === currentUser ? "me" : "other");
+      d.innerText = m.text;
+      messages.appendChild(d);
+      messages.scrollTop = messages.scrollHeight;
+    }
+  }
+
+  function send() {
+    if (!msg.value || !selectedUser) return;
+    socket.emit("privateMessage", { to: selectedUser, text: msg.value });
+    msg.value = "";
+  }
+
+  socket.on("loginError", m => status.innerText = m);
+  socket.on("registerSuccess", m => { status.innerText = m; setMode("login"); });
+  socket.on("registerError", m => status.innerText = m);
+  socket.on("resetSuccess", m => { status.innerText = m; setMode("login"); });
+  socket.on("resetError", m => status.innerText = m);
+
+  window.onload = () => {
+    const saved = sessionStorage.getItem("savedUser");
+    if (saved) username.value = saved;
+  };
+</script>
+
+</body>
+</html>
