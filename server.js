@@ -1,21 +1,31 @@
 require('dotenv').config();
 
-// Rest of your code stays the sameconst bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const mongoose = require("mongoose");
+const path = require("path");
+const cors = require("cors");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: { origin: "*" }
+});
 
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.use(express.static(path.join(__dirname)));
 
+// MongoDB Connection - Use environment variable for Render
 mongoose
-  .connect("mongodb://127.0.0.1:27017/chatapp")
+  .connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/chatapp")
   .then(() => console.log("MongoDB connected"))
-  .catch(err => console.log(err));
+  .catch(err => console.log("MongoDB error:", err));
 
 const userSchema = new mongoose.Schema({
   username: { type: String, unique: true },
@@ -38,6 +48,11 @@ const passwordRegex =
 
 const onlineUsers = {};
 
+// Serve index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 io.on("connection", (socket) => {
 
   // REGISTER
@@ -56,7 +71,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // LOGIN (username only — as you wanted)
+  // LOGIN
   socket.on("login", async ({ username }) => {
     const user = await User.findOne({ username });
     if (!user) {
@@ -71,7 +86,7 @@ io.on("connection", (socket) => {
     io.emit("onlineUsers", Object.keys(onlineUsers));
   });
 
-  // 🔥 RESET PASSWORD (THIS WAS MISSING)
+  // RESET PASSWORD
   socket.on("resetPassword", async ({ username, newPassword }) => {
     if (!newPassword || !passwordRegex.test(newPassword)) {
       socket.emit("resetError", "Password does not meet requirements");
@@ -127,7 +142,7 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(3000, () =>
-  console.log("Server running on http://localhost:3000")
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () =>
+  console.log(`Server running on port ${PORT}`)
 );
-
